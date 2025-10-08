@@ -1,0 +1,12 @@
+torch
+torchaudio
+torchvision
+--extra-index-url https://download.pytorch.org/whl/cu129
+
+matplotlib
+notebook
+numpy
+nvidia-pyindex
+nvidia-cudnn-cu12
+scikit-learn
+seaborn
