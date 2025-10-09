@@ -1,5 +1,11 @@
 Aulas/
+data/
 .vscode/
 
+complete_model.ipynb
 cuda_test.py
+generate_label.py
+load_data_custom.py
+load_data_pre.py
+neural_network.py
 quickstart.py
