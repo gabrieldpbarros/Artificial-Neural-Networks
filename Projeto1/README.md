@@ -20,9 +20,9 @@ Para o desenvolvimento da rede, será utilizado o método de **[Correção de Er
 
 ### Correção de Erro
 
-Os dados (dataset) são fornecidos à rede neural no formato $ \{(x_k, d_k)\}^N $, em que $ x_k $ são features e $ d_k $ são labels (respostas esperadas). Esse formato de dataset cumpre o papel do professor no método de aprendizado, por fornecer as respostas desejadas. A rede, por sua vez, produz uma resposta $ y_k $ de acordo com o dado de entrada.
+Os dados (dataset) são fornecidos à rede neural no formato $\{(x_k, d_k)\}^N$, em que $x_k$ são features e $d_k$ são labels (respostas esperadas). Esse formato de dataset cumpre o papel do professor no método de aprendizado, por fornecer as respostas desejadas. A rede, por sua vez, produz uma resposta $y_k$ de acordo com o dado de entrada.
 
-A partir das respostas ($ d_k $ e $ y_k $), calculamos um sinal de erro ($ e_k $) a fim de reduzir o erro ao longo do processo de treinamento:
+A partir das respostas ($d_k$ e $y_k$), calculamos um sinal de erro ($e_k$) a fim de reduzir o erro ao longo do processo de treinamento:
 
 $$ e_k(n) = d_k(n) - y_k(n) $$
 
@@ -44,7 +44,7 @@ Para minimizar essa função, ou seja, reduzir o erro a cada iteração, aplicam
 
 $$ \Delta w_{kj} = -\eta \frac{\partial{E}}{\partial{w_{kj}}} $$
 
-Em que $ w_{kj} $ é o peso entre os neurônios k e j, e $ \eta $ é a taxa de aprendizagem da rede.
+Em que $w_{kj}$ é o peso entre os neurônios k e j, e $\eta$ é a taxa de aprendizagem da rede.
 
 Esse método nos garante a aproximação de um mínimo na função pelo cálculo do negativo do valor do gradiente da função, que indica uma direção de minimização da função.
 
