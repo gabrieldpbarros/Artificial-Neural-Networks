@@ -1,5 +1,13 @@
 # Rede Neural Supervisionada
 
+## Objetivo
+
+O projeto foi desenvolvido em cima do dataset [csgo_round_snapshots.csv](db/csgo_round_snapshots.csv), que contem aproximadamente 700 exemplos de torneios de alto nível de CS:GO no período entre 2019 e 2020.
+
+A função desta rede neural é ser capaz de prever qual time (Terroristas ou Contraterroristas) vencerá a rodada da partida, jogada em uma melhor de 30 rodadas.
+
+Utilizamos 
+
 ## Instruções
 
 O projeto consiste em desenvolver um modelo de rede neural supervisionado (rede MLP) para um problema de classificação ou de regressão. Considerar:
@@ -48,7 +56,7 @@ Em que $w_{kj}$ é o peso entre os neurônios k e j, e $\eta$ é a taxa de apren
 
 Esse método nos garante a aproximação de um mínimo na função pelo cálculo do negativo do valor do gradiente da função, que indica uma direção de minimização da função.
 
-Vale ressaltar que esse método, por si só, não garante que chegaremos a um mínimo global. Seria necessária a aplicação de etapas extras para garantir que podemos sair de mínimos locais e encontrar mínimos globais, como o **termo de momentum**.
+Vale ressaltar que esse método, por si só, não garante que chegaremos a um mínimo global. Seria necessária a aplicação de etapas extras, como o **termo de momentum**, para garantir que podemos sair de mínimos locais e encontrar mínimos globais.
 
 ### Aprendizado Supervisionado
 
