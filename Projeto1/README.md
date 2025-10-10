@@ -6,7 +6,7 @@ O projeto foi desenvolvido em cima do dataset [csgo_round_snapshots.csv](db/csgo
 
 A função desta rede neural é ser capaz de prever qual time (Terroristas ou Contraterroristas) vencerá a rodada da partida, jogada em uma melhor de 30 rodadas.
 
-Utilizamos 
+Utilizamos os dados relativos à quantidade de jogadores vivos em cada time, a vida total dos jogadores de cada time, o dinheiro em USD de cada time, o tempo restante no final do round e se a bomba foi plantada, além do time que venceu a rodada.
 
 ## Instruções
 
