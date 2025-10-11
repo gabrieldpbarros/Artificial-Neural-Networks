@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-O projeto foi desenvolvido em cima do dataset [csgo_round_snapshots.csv](db/csgo_round_snapshots.csv), que contem aproximadamente 700 exemplos de torneios de alto nível de CS:GO no período entre 2019 e 2020.
+O projeto foi desenvolvido em cima do dataset [csgo_round_snapshots.csv](db/csgo_round_snapshots.csv), que contém aproximadamente 700 exemplos de torneios de alto nível de CS:GO no período entre 2019 e 2020.
 
 A função desta rede neural é ser capaz de prever qual time (Terroristas ou Contraterroristas) vencerá a rodada da partida, jogada em uma melhor de 30 rodadas.
 
@@ -61,10 +61,8 @@ $$
 Para minimizar essa função, ou seja, reduzir o erro a cada iteração, aplicamos o gradiente descendente, ou regra delta, definido por:
 
 $$
-\Delta w_{kj} = -\eta \frac{\partial{E}}{\partial{w_{kj}}}
+\Delta w_{kj} = -\eta \frac{\partial{E}}{\partial{w_{kj}}} \hbox{, em que $w_{kj}$ é o peso entre os neurônios $k$ e $j$, e $\eta$ é a taxa de aprendizagem da rede.}
 $$
-
-Em que $w_{kj}$ é o peso entre os neurônios $k$ e $j$, e $\eta$ é a taxa de aprendizagem da rede.
 
 Esse método nos garante a aproximação de um mínimo na função pelo cálculo do negativo do valor do gradiente da função, que indica uma direção de minimização da função.
 
@@ -153,13 +151,14 @@ $$ \delta_k = -\frac{\partial{E}}{\partial{v_{k}}} = -\frac{\partial{E}}{\partia
 Assumindo $y_k = f(v_k)$, temos
 
 $$
-\delta_k = -\frac{\partial{E}}{\partial{y_{k}}}\frac{\partial{y_k}}{\partial{v_k}} = -\frac{\partial{E}}{\partial{y_{k}}}f'(v_k) \ \hbox{, em que} \ \frac{\partial{E}}{\partial{y_{k}}} \ \hbox{depende da posição do neurônio.}
+\delta_k = -\frac{\partial{E}}{\partial{y_{k}}}\frac{\partial{y_k}}{\partial{v_k}} = -\frac{\partial{E}}{\partial{y_{k}}}f'(v_k)\hbox{, em que $\frac{\partial{E}}{\partial{y_{k}}}$ depende da posição do neurônio.}
 $$
 
 Para um neurônio de saída, o erro é o mesmo do calculado para na função de energia. Logo,
 
 $$
-\frac{\partial{E}}{\partial{y_{k}}} = \frac{\partial{}}{\partial{y_{k}}} \left(\frac{1}{2} \sum(d_k(n) - y_k(n))^2 \right) = -e_k \Longrightarrow \\
+\frac{\partial{E}}{\partial{y_{k}}} = \frac{\partial{}}{\partial{y_{k}}} \left(\frac{1}{2} \sum(d_k(n) - y_k(n))^2 \right) = -e_k \Longrightarrow
+\newline
 \Longrightarrow \delta_k = e_k f'(v_k) \ \hbox{(gradiente local do neurônio de saída)}
 $$
 
