@@ -28,7 +28,7 @@ Para o desenvolvimento da rede, será utilizado o método de aprendizagem por **
 
 O [**perceptron**](#perceptron), base da arquitetura MLP, é a associação de um algoritmo de aprendizagem ao neurônio MCP, ou seja, nos permite um ajuste automático dos pesos através dos erros calculados pela correção de erro. Contudo, apenas um perceptron nos fornece uma única camada de neurônios com pesos ajustáveis. Como temos um dataset com mais de 5 features, ou seja, um problema não-linear, esse modelo não é suficiente para modelar o problema proposto. 
 
-Então, usaremos a arquitetura [**Multilayer Perceptron (MLP)**](#mlp), que consiste na disposição de múltiplas camadas de perceptrons. Como não temos acesso direto aos pesos das camadas ocultas, utilizaremos um algoritmo de retropropagação pelo método de gradiente descendente estocástico para atualizar esses pesos.
+Então, usaremos a arquitetura [**multilayer perceptron (MLP)**](#mlp), que consiste na disposição de múltiplas camadas de perceptrons. Como não temos acesso direto aos pesos das camadas ocultas, utilizaremos um algoritmo de retropropagação pelo método de gradiente descendente estocástico para atualizar esses pesos.
 
 ### Correção de Erro
 
@@ -36,7 +36,9 @@ Os dados (dataset) são fornecidos à rede neural no formato $\{(x_k, d_k)\}^N$,
 
 A partir das respostas ($d_k$ e $y_k$), calculamos um **sinal de erro** ($e_k$) a fim de reduzir o erro ao longo do processo de treinamento:
 
-$$ e_k(n) = d_k(n) - y_k(n) $$
+$$
+e_k(n) = d_k(n) - y_k(n)
+$$
 
 Sendo **n** o número do passo da atualização dos pesos no processo de aprendizado.
 
@@ -46,15 +48,21 @@ Conforme orientado nas instruções do projeto, utilizamos o **gradiente descend
 
 Podemos representar a função de custo, ou energia, pelo erro quadrático médio sobre o conjunto de treinamento:
 
-$$ E(n) = \frac{1}{2}\sum(d_k(n) - y_k(n))^2 $$
+$$
+E(n) = \frac{1}{2}\sum(d_k(n) - y_k(n))^2
+$$
 
 ou
 
-$$ E(n) = \frac{1}{2}\sum(e_k(n))^2 $$
+$$
+E(n) = \frac{1}{2}\sum(e_k(n))^2
+$$
 
 Para minimizar essa função, ou seja, reduzir o erro a cada iteração, aplicamos o gradiente descendente, ou regra delta, definido por:
 
-$$ \Delta w_{kj} = -\eta \frac{\partial{E}}{\partial{w_{kj}}} $$
+$$
+\Delta w_{kj} = -\eta \frac{\partial{E}}{\partial{w_{kj}}}
+$$
 
 Em que $w_{kj}$ é o peso entre os neurônios $k$ e $j$, e $\eta$ é a taxa de aprendizagem da rede.
 
@@ -72,10 +80,15 @@ No contexto desse modelo, estamos avaliando um caso de classificação binária,
 
 O perceptron, proposto por Frank Rosenblatt em 1958, é construído em torno do **neurônio MCP**, em que os pesos são representados por $w_1, w_2, ..., w_n$, as entradas por $x_1, x_2, ..., x_2$, o bias externo por $b$ e o campo local induzido (não-linear) por
 
-$$ v = \sum_{i=1}^{n}w_ix_i + b $$
+$$
+v = \sum_{i=1}^{n}w_ix_i + b
+$$
 
-![Modelo de neurônio de McCulloch e Pitts](assets/neuroniomcp.png)
+<div align="center">
+<img src="./assets/neuroniomcp.png" style="height: 350px;" align="center">
+
 *(Modelo de neurônio de McCulloch e Pitts)*
+</div>
 
 Esse tipo de neurônio, bem como o MLP, assume apenas saídas binárias, aplicado em casos de aprendizado supervisionado via correção de erros.
 
@@ -83,7 +96,9 @@ Esse tipo de neurônio, bem como o MLP, assume apenas saídas binárias, aplicad
 
 Alteramos os pesos apenas quando o padrão retornado pelo neurônio não é igual ao esperado. A atualização segue a equação
 
-$$ w(n+1) = w(n) + \eta[d(n) - y(n)]x(n) \Longleftrightarrow \Delta w = \eta e(n)x(n) $$
+$$
+w(n+1) = w(n) + \eta[d(n) - y(n)]x(n) \Longleftrightarrow \Delta w = \eta e(n)x(n)
+$$
 
 A atualização dos pesos é aplicada até que o modelo atinja uma precisão satisfatória.
 
@@ -102,6 +117,12 @@ Contudo, pelas saídas estritamente binárias, esse modelo é insuficiente para 
 
 Ao associar múltiplas camadas de perceptrons, divididas em camada de entrada, camadas ocultas e camada de saída, superamos a restrição do perceptron indiviual. Múltiplas camadas permitem que transformemos um problema não-linearmente separável em um linearmente separável (camada a camada).
 
+<div align="center">
+<img src="./assets/mlp.png" style="height: 400px;" align="center">
+
+*(Multilayer perceptron)*
+</div>
+
 Contudo, isso gera outro problema, que é o acesso aos pesos sinápticos das camadas internas do neurônio. Isso ocorre porque, ao propagar um sinal pela rede neural, os erros de cada camada se acumulam na saída da rede, fornecendo uma ideia pouco nítida dos erros de cada camada do MLP.
 
 Para resolver isso, foi proposto o popular **algoritmo de retropropagação**, baseado na método de aprendizagem por correção de erro. Esse algoritmo consiste em duas etapas: a propagação (feedforward), com pesos fixos, e a retropropagação (feedback), que atualiza os pesos conforme seu efeito se propaga.
@@ -110,14 +131,39 @@ Na propagação, a resposta da rede é subtraída da resposta desejada, gerando 
 
 O cálculo do gradiente local é feito da seguinte maneira:
 
-$$ \Delta w_{kj} = -\eta \frac{\partial{E}}{\partial{w_{kj}}} = -\eta \frac{\partial{E}}{\partial{v_{k}}}\frac{\partial{v_k}}{\partial{w_{kj}}}$$
+$$
+\Delta w_{kj} = -\eta \frac{\partial{E}}{\partial{w_{kj}}} = -\eta \frac{\partial{E}}{\partial{v_{k}}}\frac{\partial{v_k}}{\partial{w_{kj}}}
+$$
 
 $$ 
 \begin{cases}
--\eta \frac{\partial{E}}{\partial{v_{k}}} = \delta_k \\
+-\frac{\partial{E}}{\partial{v_{k}}} = \delta_k \ \hbox{(gradiente  local)} \\
 v_k = \sum w_{kj}x_j \Longrightarrow \frac{\partial{v_k}}{\partial{w_{kj}}} = x_j
-\end{cases}
+\end{cases} \Longrightarrow
+\Delta w_{kj} = \eta \delta_k x_j
 $$
+<div align="center"> (Retropropagação) </div>
+
+(desenvolver explicação disso)
+
+Tomamos o gradiente local como
+
+$$ \delta_k = -\frac{\partial{E}}{\partial{v_{k}}} = -\frac{\partial{E}}{\partial{y_{k}}}\frac{\partial{y_k}}{\partial{v_k}} $$
+
+Assumindo $y_k = f(v_k)$, temos
+
+$$
+\delta_k = -\frac{\partial{E}}{\partial{y_{k}}}\frac{\partial{y_k}}{\partial{v_k}} = -\frac{\partial{E}}{\partial{y_{k}}}f'(v_k) \ \hbox{, em que} \ \frac{\partial{E}}{\partial{y_{k}}} \ \hbox{depende da posição do neurônio.}
+$$
+
+Para um neurônio de saída, o erro é o mesmo do calculado para na função de energia. Logo,
+
+$$
+\frac{\partial{E}}{\partial{y_{k}}} = \frac{\partial{}}{\partial{y_{k}}} \left(\frac{1}{2} \sum(d_k(n) - y_k(n))^2 \right) = -e_k \Longrightarrow \\
+\Longrightarrow \delta_k = e_k f'(v_k) \ \hbox{(gradiente local do neurônio de saída)}
+$$
+
+Já para um neurônio $k$ oculto, devemos entender que o estado interno de $k$ depende do neurônio $j$ da camada anterior, seja em menor ou maior grau. Assim, 
 
 #### **Termo de de Momentum**
 

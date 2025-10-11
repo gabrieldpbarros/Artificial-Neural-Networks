@@ -21,7 +21,10 @@ class LinearModel(nn.Module):
         # 1. Passa os dados para a camada linear
         # v = Σ(wx) + b
         x = self.l1(x)
-        # 2. 
+        # 2. Função do campo local induzido (não-linear)
+        # y = φ(v)
+        x = self.sigmoid(x)
+        
         return x
 
 # Definimos o uso de CUDA para o treinamento do modelo
