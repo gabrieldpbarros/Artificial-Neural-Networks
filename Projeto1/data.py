@@ -38,7 +38,9 @@ class CustomDB(Dataset):
 
         return feature_sample, label_sample
     
-def prepareData(path: str, proportion: Tuple[float, float, float], data_transform: Compose = None) -> Tuple[DataLoader, DataLoader, DataLoader]:
+def prepareData(path: str,
+                proportion: Tuple[float, float, float],
+                data_transform: Compose = None) -> Tuple[DataLoader, DataLoader, DataLoader]:
     """
     Recebe o caminho de um dataset e retorna os dados processados e preparados para serem utilizados
     no processo de aprendizado do modelo.
@@ -107,7 +109,11 @@ def filterData(path: str = 'db/') -> None:
     # Mapeia 'CT' para 1 e 'T' para 0
     df['round_winner_numeric'] = df['round_winner'].map({'CT': 1, 'T': 0})
 
-    # --- 2. Selecionando e ordenando as colunas finais ---
+    # --- 2. Converte a coluna bomb_planted para inteiros ---
+    # False se torna 0 e True se torna 1
+    df['bomb_planted'] = df['bomb_planted'].astype(int)
+
+    # --- 3. Selecionando e ordenando as colunas finais ---
     # Lista com as features selecionadas por você
     features = [
         'ct_health',
@@ -127,7 +133,14 @@ def filterData(path: str = 'db/') -> None:
     # Isso é importante para que nossa classe NumericalDataset funcione corretamente
     final_df = df[features + [label]]
 
-    # --- 3. Salvando o novo arquivo CSV ---
+    # --- 4. Salvando o novo arquivo CSV ---
     output_filename = 'csgo_processed.csv'
     final_path = os.path.join(path, output_filename)
     final_df.to_csv(final_path, index=False)
+
+def viewData(path: str = 'db/') -> pd.DataFrame:
+    arch = 'csgo_processed.csv'
+    file_path = os.path.join(path, arch)
+
+    df = pd.read_csv(file_path)
+    return df

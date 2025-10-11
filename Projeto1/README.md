@@ -22,15 +22,19 @@ O projeto consiste em desenvolver um modelo de rede neural supervisionado (rede 
 
 - O modelo com melhor resultado deve retreinado com o termo de momentum.
 
-## Teoria
+## Revisão Teórica
 
-Para o desenvolvimento da rede, será utilizado o método de **[Correção de Erro](#correção-de-erro)** sob o paradigma do **[Aprendizado Supervisionado](#aprendizado-supervisionado)**, conforme informado nas instruções do projeto.
+Para o desenvolvimento da rede, será utilizado o método de aprendizagem por **[correção de erro](#correção-de-erro)** sob o paradigma do **[aprendizado supervisionado](#aprendizado-supervisionado)**, conforme informado nas instruções do projeto.
+
+O [**perceptron**](#perceptron), base da arquitetura MLP, é a associação de um algoritmo de aprendizagem ao neurônio MCP, ou seja, nos permite um ajuste automático dos pesos através dos erros calculados pela correção de erro. Contudo, apenas um perceptron nos fornece uma única camada de neurônios com pesos ajustáveis. Como temos um dataset com mais de 5 features, ou seja, um problema não-linear, esse modelo não é suficiente para modelar o problema proposto. 
+
+Então, usaremos a arquitetura [**Multilayer Perceptron (MLP)**](#mlp), que consiste na disposição de múltiplas camadas de perceptrons. Como não temos acesso direto aos pesos das camadas ocultas, utilizaremos um algoritmo de retropropagação pelo método de gradiente descendente estocástico para atualizar esses pesos.
 
 ### Correção de Erro
 
 Os dados (dataset) são fornecidos à rede neural no formato $\{(x_k, d_k)\}^N$, em que $x_k$ são features e $d_k$ são labels (respostas esperadas). Esse formato de dataset cumpre o papel do professor no método de aprendizado, por fornecer as respostas desejadas. A rede, por sua vez, produz uma resposta $y_k$ de acordo com o dado de entrada.
 
-A partir das respostas ($d_k$ e $y_k$), calculamos um sinal de erro ($e_k$) a fim de reduzir o erro ao longo do processo de treinamento:
+A partir das respostas ($d_k$ e $y_k$), calculamos um **sinal de erro** ($e_k$) a fim de reduzir o erro ao longo do processo de treinamento:
 
 $$ e_k(n) = d_k(n) - y_k(n) $$
 
@@ -52,13 +56,77 @@ Para minimizar essa função, ou seja, reduzir o erro a cada iteração, aplicam
 
 $$ \Delta w_{kj} = -\eta \frac{\partial{E}}{\partial{w_{kj}}} $$
 
-Em que $w_{kj}$ é o peso entre os neurônios k e j, e $\eta$ é a taxa de aprendizagem da rede.
+Em que $w_{kj}$ é o peso entre os neurônios $k$ e $j$, e $\eta$ é a taxa de aprendizagem da rede.
 
 Esse método nos garante a aproximação de um mínimo na função pelo cálculo do negativo do valor do gradiente da função, que indica uma direção de minimização da função.
 
-Vale ressaltar que esse método, por si só, não garante que chegaremos a um mínimo global. Seria necessária a aplicação de etapas extras, como o **termo de momentum**, para garantir que podemos sair de mínimos locais e encontrar mínimos globais.
+Vale ressaltar que esse método, por si só, não garante que chegaremos a um mínimo global. Seria necessária a aplicação de métodos, como o [**termo de momentum**](#termo-de-de-momentum), para garantir que podemos sair de mínimos locais e encontrar mínimos globais, bem como decair o nível de energia mais rapidamente.
 
 ### Aprendizado Supervisionado
+
+Este paradigma consiste no fornecimento de **dados tabelados** ($\{(x_k, d_k)\}^N_{i=1}$) à rede neural, ou seja, o modelo sabe previamente a classificação da amostra durante a fase de treinamento. Dessa forma, não é necessária a busca por regularidades estatísticas nos dados a fim de adaptar-se ao problema descrito.
+
+No contexto desse modelo, estamos avaliando um caso de classificação binária, em que esse tipo de paradigma de aprendizado é comumente aplicado.
+
+### Perceptron
+
+O perceptron, proposto por Frank Rosenblatt em 1958, é construído em torno do **neurônio MCP**, em que os pesos são representados por $w_1, w_2, ..., w_n$, as entradas por $x_1, x_2, ..., x_2$, o bias externo por $b$ e o campo local induzido (não-linear) por
+
+$$ v = \sum_{i=1}^{n}w_ix_i + b $$
+
+![Modelo de neurônio de McCulloch e Pitts](assets/neuroniomcp.png)
+*(Modelo de neurônio de McCulloch e Pitts)*
+
+Esse tipo de neurônio, bem como o MLP, assume apenas saídas binárias, aplicado em casos de aprendizado supervisionado via correção de erros.
+
+#### **Atualização dos pesos**
+
+Alteramos os pesos apenas quando o padrão retornado pelo neurônio não é igual ao esperado. A atualização segue a equação
+
+$$ w(n+1) = w(n) + \eta[d(n) - y(n)]x(n) \Longleftrightarrow \Delta w = \eta e(n)x(n) $$
+
+A atualização dos pesos é aplicada até que o modelo atinja uma precisão satisfatória.
+
+Algoritmo:
+
+1. Iniciamos os pesos sinápticos com valores aleatórios pequenos;
+2. Aplicamos na entrada uma amostra aleatória do banco de dados com seu respectivo valor desejado $d_j$ e verificamos a saída $y_k$ gerada pelo neurônio;
+3. Calculamos o erro $e_j$;
+4. Se $e_j = 0$, retornamos ao passo 2;
+5. Senão, atualizamos os pesos;
+6. Retornamos ao passo 2.
+
+Contudo, pelas saídas estritamente binárias, esse modelo é insuficiente para modelar problemas não triviais. Para representar funções que não são linearmente separáveis, utilizamos mais de uma camada de perceptrons, ou seja, o **multilayer perceptron**.
+
+### MLP
+
+Ao associar múltiplas camadas de perceptrons, divididas em camada de entrada, camadas ocultas e camada de saída, superamos a restrição do perceptron indiviual. Múltiplas camadas permitem que transformemos um problema não-linearmente separável em um linearmente separável (camada a camada).
+
+Contudo, isso gera outro problema, que é o acesso aos pesos sinápticos das camadas internas do neurônio. Isso ocorre porque, ao propagar um sinal pela rede neural, os erros de cada camada se acumulam na saída da rede, fornecendo uma ideia pouco nítida dos erros de cada camada do MLP.
+
+Para resolver isso, foi proposto o popular **algoritmo de retropropagação**, baseado na método de aprendizagem por correção de erro. Esse algoritmo consiste em duas etapas: a propagação (feedforward), com pesos fixos, e a retropropagação (feedback), que atualiza os pesos conforme seu efeito se propaga.
+
+Na propagação, a resposta da rede é subtraída da resposta desejada, gerando um sinal de erro. Na retropropagação, esse sinal de erro é propagado para trás, ajustando os pesos sinápticos a fim de aproximar a resposta obtida da desejada.
+
+O cálculo do gradiente local é feito da seguinte maneira:
+
+$$ \Delta w_{kj} = -\eta \frac{\partial{E}}{\partial{w_{kj}}} = -\eta \frac{\partial{E}}{\partial{v_{k}}}\frac{\partial{v_k}}{\partial{w_{kj}}}$$
+
+$$ 
+\begin{cases}
+-\eta \frac{\partial{E}}{\partial{v_{k}}} = \delta_k \\
+v_k = \sum w_{kj}x_j \Longrightarrow \frac{\partial{v_k}}{\partial{w_{kj}}} = x_j
+\end{cases}
+$$
+
+#### **Termo de de Momentum**
+
+Analogamente à Mecânica, aplicamos o momento linear na descida do gradiente. Dessa forma, geramos inércia na descida, permitindo que, dependendo da velocidade, o gradiente ultrapasse o ponto de mínimo local e decaia para outra região do gráfico de energia, com menor valor.
+
+(possivelmente inserir imagem do momentum aqui)
+
+
+
 
 ## Dataset
 
