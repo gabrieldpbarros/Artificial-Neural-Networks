@@ -3,7 +3,7 @@ import torch
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from torch.utils.data import Dataset, DataLoader, random_split
+from torch.utils.data import Dataset, DataLoader, random_split, TensorDataset
 from torchvision.transforms import Compose
 from typing import Tuple
 
@@ -28,7 +28,7 @@ class CustomDB(Dataset):
 
     def __getitem__(self, idx):
         feature_sample = self.features[idx]
-        label_sample = self.featres[idx]
+        label_sample = self.labels[idx]
 
         # Realiza as transformações, caso solicitadas
         if self.transform:
@@ -37,10 +37,20 @@ class CustomDB(Dataset):
             label_sample = self.target_transform(label_sample)
 
         return feature_sample, label_sample
+
+def normalize_subset(subset, mean, std):
+    """ Função auxiliar para aplicar a normalização """
+    features = torch.cat([subset[i][0].unsqueeze(0) for i in range(len(subset))], dim=0)
+    labels = torch.tensor([subset[i][1] for i in range(len(subset))])
     
+    # Normalização
+    normalized_features = (features - mean) / std
+    # Formato mais otimizado para armazenar o dataset pronto para ser carregado no dataloader
+    return TensorDataset(normalized_features, labels.unsqueeze(1))
+
 def prepareData(path: str,
                 proportion: Tuple[float, float, float],
-                data_transform: Compose = None) -> Tuple[DataLoader, DataLoader, DataLoader]:
+                batch_size: int = 32) -> Tuple[DataLoader, DataLoader, DataLoader]:
     """
     Recebe o caminho de um dataset e retorna os dados processados e preparados para serem utilizados
     no processo de aprendizado do modelo.
@@ -49,18 +59,15 @@ def prepareData(path: str,
         path: Caminho do arquivo.
         proportion: Proporção em que os dados serão divididos para cada conjunto. São respectivamente os conjuntos de
         treino, validação eteste. Ex: (0.8, 0.1, 0.1)
-        data_transform (opcional): Transformações que serão aplicadas nos dados para normalização.
+        batch_size (opcional): Tamanho dos lotes nos dataloaders.
     SAÍDA:
         Tuple[torch.tensor, torch.tensor, torch.tensor]: Tupla que contém, respectivamente, os dados de treino, validação
         e teste aleatorizados e normalizados.
     """
-    # Carregamos o dataset completo, para uma divisão posterior
-    full_data = CustomDB(
-        file_path=path,
-        transform=data_transform
-    )
+    # --- 1. Carregamos o dataset completo, para uma divisão posterior ---
+    full_data = CustomDB(file_path=path)
 
-    # Calculamos o tamanho de cada conjunto
+    # --- 2. Calculamos o tamanho de cada conjunto ---
     dataset_size = len(full_data)
     train_size = int(dataset_size * proportion[0])
     val_size = int(dataset_size * proportion[1])
@@ -68,19 +75,33 @@ def prepareData(path: str,
 
     # Geramos uma seed para a aleatorização dos dados
     generator = torch.Generator().manual_seed(42)
-    # Dividimos os dados do dataset
-    train_dataset, val_dataset, test_dataset = random_split(
+    # --- 3. Dividimos os dados do dataset ---
+    train_subset, val_subset, test_subset = random_split(
         full_data,
         [train_size, val_size, test_size],
         generator=generator
     )
 
+    # --- 4. Etapa de normalização dos dados ---
+    # Usamos o método de normalização por distribuição
+    # dim=0 indica que estamos trabalhando com as colunas
+    train_features = torch.cat([train_subset[i][0].unsqueeze(0) for i in range(len(train_subset))], dim=0)
+    mean = train_features.mean(dim=0)
+    std = train_features.std(dim=0)
+    # Evita divisão por zero se uma feature for constante
+    std[std == 0] = 1.0
+
+    train_normalized = normalize_subset(train_subset, mean, std)
+    val_normalized = normalize_subset(val_subset, mean, std)
+    test_normalized = normalize_subset(test_subset, mean, std)
+
     # Construimos os DataLoaders de cada conjunto
-    batch_size = 32
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    train_loader = DataLoader(train_normalized, batch_size=batch_size, shuffle=True)
     # Não aleatorizamos os conjuntos de validação e de teste pois queremos uma avaliação consistente
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+    val_loader = DataLoader(val_normalized, batch_size=batch_size, shuffle=False)
+    test_loader = DataLoader(test_normalized, batch_size=batch_size, shuffle=False)
+
+    return train_loader, val_loader, test_loader
 
 def filterData(path: str = 'db/') -> None:
     """

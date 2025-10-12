@@ -157,9 +157,7 @@ $$
 Para um neurônio de saída, o erro é o mesmo do calculado para na função de energia. Logo,
 
 $$
-\frac{\partial{E}}{\partial{y_{k}}} = \frac{\partial{}}{\partial{y_{k}}} \left(\frac{1}{2} \sum(d_k(n) - y_k(n))^2 \right) = -e_k \Longrightarrow
-\newline
-\Longrightarrow \delta_k = e_k f'(v_k) \ \hbox{(gradiente local do neurônio de saída)}
+\frac{\partial{E}}{\partial{y_{k}}} = \frac{\partial{}}{\partial{y_{k}}} \left(\frac{1}{2} \sum(d_k(n) - y_k(n))^2 \right) = -e_k \Longrightarrow \delta_k = e_k f'(v_k) \ \hbox{(gradiente local do neurônio de saída)}
 $$
 
 Já para um neurônio $k$ oculto, devemos entender que o estado interno de $k$ depende do neurônio $j$ da camada anterior, seja em menor ou maior grau. Assim, 
