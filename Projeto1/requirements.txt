@@ -8,5 +8,3 @@ notebook
 numpy
 nvidia-pyindex
 nvidia-cudnn-cu12
-scikit-learn
-seaborn
