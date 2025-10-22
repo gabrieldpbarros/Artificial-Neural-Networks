@@ -153,6 +153,10 @@ def filterData(path: str = 'db/') -> None:
     # Cria o DataFrame final com as features e o label como a ÚLTIMA coluna
     # Isso é importante para que nossa classe NumericalDataset funcione corretamente
     final_df = df[features + [label]]
+    # Retiramos os dados
+    filter = final_df[final_df['ct_health'] == 500.0]
+    filter = filter[filter['t_health'] == 500.0]
+    final_df.drop(filter.index, inplace=True)
 
     # --- 4. Salvando o novo arquivo CSV ---
     output_filename = 'csgo_processed.csv'
