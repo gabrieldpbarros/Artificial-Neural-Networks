@@ -7,47 +7,6 @@ from torch.utils.data import Dataset, DataLoader, random_split, TensorDataset
 from torchvision.transforms import Compose
 from typing import Tuple
 
-class CustomDB(Dataset):
-    """ Classe que adapta o database para o formato desejado pela NN """
-    def __init__(self, file_path, transform=None, target_transform=None):
-        df = pd.read_csv(file_path)
-
-        # Assumimos que as labels estão na última coluna do dataframe, então separamos as features como
-        # todos os valores anteriores à última coluna e os labels como a última coluna. Todos esses valores
-        # são convertidos para ndarrays, facilitando a integração com os tensores
-        features_np = df.iloc[:, :-1].values
-        labels_np = df.iloc[:, -1].values
-
-        self.features = torch.tensor(features_np, dtype=torch.float32)
-        self.labels = torch.tensor(labels_np, dtype=torch.float32)
-        self.transform = transform
-        self.target_transform = target_transform
-
-    def __len__(self):
-        return len(self.features)
-
-    def __getitem__(self, idx):
-        feature_sample = self.features[idx]
-        label_sample = self.labels[idx]
-
-        # Realiza as transformações, caso solicitadas
-        if self.transform:
-            feature_sample = self.transform(feature_sample)
-        if self.target_transform:
-            label_sample = self.target_transform(label_sample)
-
-        return feature_sample, label_sample
-
-def normalizeSubset(subset, mean, std):
-    """ Função auxiliar para aplicar a normalização """
-    features = torch.cat([subset[i][0].unsqueeze(0) for i in range(len(subset))], dim=0)
-    labels = torch.tensor([subset[i][1] for i in range(len(subset))])
-    
-    # Normalização
-    normalized_features = (features - mean) / std
-    # Formato mais otimizado para armazenar o dataset pronto para ser carregado no dataloader
-    return TensorDataset(normalized_features, labels.unsqueeze(1))
-
 def prepareData(path: str,
                 batch_size: int = 32) -> Tuple[DataLoader, torch.Tensor]:
     """
@@ -62,22 +21,29 @@ def prepareData(path: str,
         sem labels, e um tensor com as labels do dataset.
     """
     # --- 1. Carregamos o dataset completo, para uma divisão posterior ---
-    full_data = CustomDB(file_path=path)
+    full_data = pd.read_csv(path)
 
-    # --- 2. Etapa de normalização dos dados ---
+    # --- 2. Separação dos features e do label ---
+    feats_df = full_data.iloc[:, :-1]
+    label_df = full_data.iloc[:, -1]
+    # Convertemos em tensores antes de normalizar
+    feats_tensor = torch.tensor(feats_df.values, dtype=torch.float32)
+    label_tensor = torch.tensor(label_df.values, dtype=torch.float32)
+
+    # --- 3. Etapa de normalização dos dados ---
     # Usamos o método de normalização por distribuição
     # dim=0 indica que estamos trabalhando com as colunas
-    mean = full_data.mean(dim=0)
-    std = full_data.std(dim=0)
+    mean = feats_tensor.mean(dim=0)
+    std = feats_tensor.std(dim=0)
     # Evita divisão por zero se uma feature for constante
     std[std == 0] = 1.0
+    feats_normalized = (feats_tensor - mean) / std
 
-    data_normalized = normalizeSubset(full_data, mean, std)
+    # --- 4. Criação do TensorDataset e do DataLoader ---
+    feats_dataset = TensorDataset(feats_normalized)
+    data_loader = DataLoader(feats_dataset, batch_size=batch_size, shuffle=True)
 
-    # Construimos os DataLoaders de cada conjunto
-    data_loader = DataLoader(data_normalized, batch_size=batch_size, shuffle=True)
-
-    return data_loader
+    return data_loader, label_tensor
 
 def filterData(path: str = 'db/') -> None:
     """
@@ -146,4 +112,5 @@ def viewData(path: str = 'db/') -> pd.DataFrame:
     df = pd.read_csv(file_path)
     return df
 
-filterData()
+if __name__ == "__main__":    
+    filterData()

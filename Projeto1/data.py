@@ -169,3 +169,6 @@ def viewData(path: str = 'db/') -> pd.DataFrame:
 
     df = pd.read_csv(file_path)
     return df
+
+if __name__ == "__main__":
+    filterData()

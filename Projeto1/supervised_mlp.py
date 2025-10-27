@@ -160,7 +160,7 @@ def main():
     train_loader, val_loader, test_loader = prepareData(PATH, PROPORTION)
 
     # Definimos o uso de CUDA para o treinamento do modelo
-    device = "cuda" if torch.accelerator.is_available() else "cpu"
+    device = "cuda" if torch.cuda.is_available() else "cpu"
     # --- 1. Instanciação do modelo ---
     torch.manual_seed(42)
     # model = Linear().to(device)

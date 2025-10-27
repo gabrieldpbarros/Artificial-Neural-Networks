@@ -3,11 +3,13 @@ Bibliografia/
 data/
 Projeto1/__pycache__
 Projeto1/projeto_vini
+Projeto2/__pycache__
 .vscode/
 
 complete_model.ipynb
 cuda_test.py
 generate_label.py
+grid_test.py
 load_data_custom.py
 load_data_pre.py
 neural_network.py
