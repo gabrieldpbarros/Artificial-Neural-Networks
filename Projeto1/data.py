@@ -1,10 +1,8 @@
 import os
 import torch
 import pandas as pd
-import matplotlib.pyplot as plt
 
 from torch.utils.data import Dataset, DataLoader, random_split, TensorDataset
-from torchvision.transforms import Compose
 from typing import Tuple
 
 class CustomDB(Dataset):

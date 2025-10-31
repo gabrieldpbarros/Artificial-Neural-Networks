@@ -7,3 +7,4 @@ notebook
 numpy
 nvidia-pyindex
 nvidia-cudnn-cu12
+seaborn

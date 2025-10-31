@@ -3,16 +3,19 @@ import torch
 
 from data import prepareData
 import numpy as np
-from torch import nn
 from torch.utils.data import DataLoader
-from torchvision import datasets, transforms
-from torchvision.transforms import Compose
 from typing import Tuple
 from view_model import *
 
 class SOM():
     """ Como o PyTorch NN não possui um modelo específico para a criação de uma rede SOM, vamos manipular tensores para isso. """
     def __init__(self, x: int, y: int, dim=8):
+        """
+        PARÂMETROS:
+            x: Quantidade de neurônios no eixo x do grid.
+            y: Quantidade de neurônios no eixo y do grid.
+            dim: Quantidade de features da amostra.
+        """
         self.x = x
         self.y = y
         self.dim = dim
@@ -46,8 +49,8 @@ class SOM():
         """
         feats_view = feats.view(-1, 1, 1, self.dim)
         diff_vectors = self.weights - feats_view
-        # Calculamos pelo módulo da distância
-        dists = torch.norm(diff_vectors, p=2, dim=2)
+        # Calculamos pelo módulo (norma) da distância
+        dists = torch.norm(diff_vectors, p=2, dim=-1)
         return dists
     
     def find_bmu(self, feats: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
@@ -85,13 +88,13 @@ class SOM():
         self.weights = self.weights + (eta * inf * delta)
 
 DEVICE = "cuda"
-EPOCHS = 50
+EPOCHS = 60
 ETA = 0.1
 SIGMA = 5
-TAL_RADIUS = 5
-TAL_LR = 5
-X_SIZE = 5
-Y_SIZE = 5
+TAL_RADIUS = 200
+TAL_LR = 200
+X_SIZE = 20
+Y_SIZE = 20
 PATH = os.path.join("db/","csgo_processed.csv")
 
 def get_coords(index, pos, map_x):
@@ -180,12 +183,136 @@ def trainModel(model: SOM,
             # --- 2. Atualiza os pesos ---
             model.update_weights(features, eta_adjusted, bmu_coords, sigma_adjusted)
 
+def generateHitMap(model: SOM, loader: DataLoader, device=DEVICE):
+    """
+    Função que gera um hitmap.
+    """
+    hit_map = torch.zeros((model.y, model.x), dtype=torch.int64, device=device)
+    
+    # 2. Desativa gradientes (como na avaliação)
+    with torch.no_grad():
+        for (features,) in loader:
+            features = features.to(device)
+            batch_size = features.size(0)
+
+            # 3. Obtém distâncias e BMUs
+            dist_batches = model.get_dist(features)
+            dist_flatten = dist_batches.view(batch_size, -1)
+            flat_bmu_indices = torch.argmin(dist_flatten, dim=1)
+            
+            # 4. Usa bincount para contar as ocorrências de cada índice de BMU
+            bmu_counts = torch.bincount(flat_bmu_indices, minlength=model.x * model.y)
+            
+            # 5. Adiciona as contagens ao hit_map
+            # (Reformulando de [Y*X] para [Y, X])
+            hit_map += bmu_counts.view(model.y, model.x)
+
+    # 6. Move para a CPU para plotar
+    return hit_map.cpu().numpy()
+
+def generateUMatrix(model: SOM, device=DEVICE):
+    """
+    Função que gera uma U-Matrix.
+    """
+    u_matrix = torch.zeros((model.y, model.x), dtype=torch.float32, device=device)
+    
+    # Pega os pesos (shape [Y, X, 8])
+    weights = model.weights
+
+    for y in range(model.y):
+        for x in range(model.x):
+            current_weight = weights[y, x]
+            total_dist = 0.0
+            neighbor_count = 0
+
+            # Itera sobre os 8 vizinhos + o próprio (para simplificar os loops)
+            for j in range(max(0, y - 1), min(model.y, y + 2)):
+                for i in range(max(0, x - 1), min(model.x, x + 2)):
+                    if (y == j and x == i):
+                        continue # Não calcula a distância para si mesmo
+
+                    # 1. Pega o peso do vizinho
+                    neighbor_weight = weights[j, i]
+                    # 2. Calcula a distância 8D
+                    dist = torch.norm(current_weight - neighbor_weight, p=2)
+                    total_dist += dist
+                    neighbor_count += 1
+            
+            # 3. A U-Matrix armazena a distância MÉDIA aos vizinhos
+            u_matrix[y, x] = total_dist / neighbor_count
+
+    # 4. Move para a CPU e plota
+    return u_matrix.cpu().detach().numpy()
+
+def prepareHeatMap(model: SOM, features_names) -> Dict[str, np.ndarray]:
+    weights_cpu = model.weights.cpu().detach().numpy() # Shape [Y, X, 8]
+    
+    plane_data_dict = {}
+    for i in range(model.dim):
+        feature_name = features_names[i]
+        feature_plane = weights_cpu[:, :, i] # Pega o "plano" 2D [Y, X]
+        plane_data_dict[feature_name] = feature_plane
+
+    return plane_data_dict
+
+def generateLabelMap(model: SOM, loader: DataLoader, labels: torch.Tensor, device=DEVICE):
+    """
+    Calcula a matriz de taxa de vitória (média de labels) para cada neurónio.
+    
+    ENTRADA:
+        model: O seu modelo SOM treinado.
+        loader: O DataLoader (apenas com features).
+        labels: O tensor 1D completo de labels (JÁ NO DEVICE CORRETO).
+        device: O dispositivo (ex: "cuda").
+
+    SAÍDA:
+        Uma matriz 2D Numpy com a taxa de vitória média por neurónio.
+    """
+    # Mapas para acumular valores (numerador e denominador)
+    label_map = torch.zeros((model.y, model.x), dtype=torch.float32, device=device)
+    hit_map = torch.zeros((model.y, model.x), dtype=torch.float32, device=device)
+    
+    label_idx = 0 # Índice para sincronizar os labels
+    with torch.no_grad():
+        for (features,) in loader:
+            features = features.to(device)
+            batch_size = features.size(0)
+
+            # Pega o 'slice' de labels correspondente a este lote
+            # (Assume que 'labels' já está no 'device')
+            batch_labels = labels[label_idx : label_idx + batch_size]
+            
+            # --- 1. Encontra os BMUs do lote ---
+            dist_batches = model.get_dist(features)
+            dist_flatten = dist_batches.view(batch_size, -1)
+            flat_bmu_indices = torch.argmin(dist_flatten, dim=1) # shape [B]
+
+            # --- 2. Acumulação Eficiente ---
+            # Acumula os labels (numerador)
+            label_map.view(-1).scatter_add_(dim=0, index=flat_bmu_indices, src=batch_labels)
+            
+            # Acumula as contagens (denominador)
+            hit_map.view(-1).scatter_add_(dim=0, index=flat_bmu_indices, src=torch.ones_like(batch_labels))
+
+            # Avança o índice dos labels
+            label_idx += batch_size
+
+    # --- 3. Calcula a Média Final ---
+    hit_map[hit_map == 0] = 1e-9 # Evita divisão por zero (para neurónios não visitados)
+    win_rate_map = (label_map / hit_map)
+    
+    return win_rate_map.cpu().numpy()
+
 def main():
     # Carregamos os dados localmente
     loader, labels = prepareData(PATH)
     first_batch = next(iter(loader))
     feats = first_batch[0]
     n_feats = feats.shape[1]
+    features_names = [
+        'ct_health', 't_health', 'ct_players_alive', 't_players_alive',
+        'ct_equipment_value', 't_equipment_value', 'time_left', 'bomb_planted'
+    ]
 
     # Definimos o uso de CUDA para o treinamento do modelo
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -205,8 +332,18 @@ def main():
         tp, qt = evaluateModel(model, loader, device)
         topographic_loss[i] = tp
         quantization_loss[i] = qt
+    
+    losses_path = os.path.join("assets/", "SOM_simple.png")
+    hitmap_path = os.path.join("assets/", "hitmap1.png")
+    umatrix_path = os.path.join("assets/", "umatrix1.png")
+    heatmap_path = os.path.join("assets/", "heatmaps1.png")
+    labelheatmap_path = os.path.join("assets/", "labelheatmaps1.png")
 
-    plotLosses(topographic_loss, quantization_loss, "Erro topográfico", "Erro de quantização")
+    plotLosses(topographic_loss, quantization_loss, "Erro topográfico", "Erro de quantização", losses_path)
+    hitMap(generateHitMap(model, loader, device=device), hitmap_path)
+    uMatrix(generateUMatrix(model, device=device), umatrix_path)
+    heatMap(prepareHeatMap(model, features_names), heatmap_path)
+    labelHeatMap(generateLabelMap(model, loader, labels, device=device), labelheatmap_path)
 
 if __name__ == "__main__":
     main()

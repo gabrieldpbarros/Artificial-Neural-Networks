@@ -1,13 +1,12 @@
 import os
 import torch
 import pandas as pd
-import matplotlib.pyplot as plt
 
-from torch.utils.data import Dataset, DataLoader, random_split, TensorDataset
-from torchvision.transforms import Compose
+from torch.utils.data import DataLoader, TensorDataset
 from typing import Tuple
 
 def prepareData(path: str,
+                shuffle: bool = True,
                 batch_size: int = 32) -> Tuple[DataLoader, torch.Tensor]:
     """
     Recebe o caminho de um dataset e retorna os dados processados e preparados para serem utilizados
@@ -41,7 +40,7 @@ def prepareData(path: str,
 
     # --- 4. Criação do TensorDataset e do DataLoader ---
     feats_dataset = TensorDataset(feats_normalized)
-    data_loader = DataLoader(feats_dataset, batch_size=batch_size, shuffle=True)
+    data_loader = DataLoader(feats_dataset, batch_size=batch_size, shuffle=shuffle)
 
     return data_loader, label_tensor
 
@@ -93,7 +92,6 @@ def filterData(path: str = 'db/') -> None:
     label = 'round_winner_numeric'
 
     # Cria o DataFrame final com as features e o label como a ÚLTIMA coluna
-    # Isso é importante para que nossa classe NumericalDataset funcione corretamente
     final_df = df[features + [label]]
     # Retiramos os dados
     filter = final_df[final_df['ct_health'] == 500.0]
