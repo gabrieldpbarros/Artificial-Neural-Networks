@@ -329,6 +329,7 @@ def main():
     # --- 4. Loop de treinamento e validação ---
     best_val_loss = float('inf')
     
+    print("--- FASE DE TREINAMENTO ----")
     for epoch in range(EPOCHS):
         print(f"\nEpoch {epoch+1}/{EPOCHS}")
         
@@ -337,7 +338,6 @@ def main():
         
         # --- 2. Validação ---
         val_loss = validateEpoch(vae, val_loader, DEVICE)
-        print("--- FASE DE TREINAMENTO ----")
         
         print(f"Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f}")
         
