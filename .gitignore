@@ -4,6 +4,10 @@ data/
 Projeto1/__pycache__
 Projeto1/projeto_vini
 Projeto2/__pycache__
+Projeto3/__pycache__
+Projeto3/db/celeba
+Projeto3/db/pokemon
+Projeto3/db/pokemon_jpg
 .vscode/
 
 complete_model.ipynb
