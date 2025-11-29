@@ -42,7 +42,7 @@ def createSequences(data: np.ndarray, seq_len: int, target_idx: int) -> Tuple[np
 
 def prepareData(path: str, batch_size: int = 32) -> Tuple[DataLoader, DataLoader, DataLoader]:
     """
-    Carrega os dados em formato de um DataLoader customizado.
+    Carrega os dados em formato de um DataLoader.
 
     Args:
         path: Caminho para o arquivo .csv que contém os dados.

@@ -1,6 +1,7 @@
 Aulas/
 Bibliografia/
 data/
+Projeto_Final/__pycache__
 Projeto1/__pycache__
 Projeto1/projeto_vini
 Projeto2/__pycache__
@@ -10,6 +11,7 @@ Projeto3/db/celeba
 Projeto3/db/pokemon
 Projeto3/db/pokemon_jpg
 Projeto4/__pycache__
+Projeto5/__pycache__
 .vscode/
 
 complete_model.ipynb
