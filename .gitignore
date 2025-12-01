@@ -12,6 +12,7 @@ Projeto3/db/pokemon
 Projeto3/db/pokemon_jpg
 Projeto4/__pycache__
 Projeto5/__pycache__
+Projeto5/best_cnn_model.pth
 .vscode/
 
 complete_model.ipynb

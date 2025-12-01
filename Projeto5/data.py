@@ -1,6 +1,5 @@
 import os
 import pandas as pd
-import torch
 
 from PIL import Image
 from sklearn.model_selection import train_test_split
@@ -85,7 +84,7 @@ def prepareData(
         Dados separados conforme a proporção definida internamente em conjuntos de treino,
         validação e teste
     """
-    proportions = (0.8, 0.2) # proporções de divisão dos conjuntos (treino, (validação e teste))
+    proportions = (0.7, 0.3) # proporções de divisão dos conjuntos (treino, (validação e teste))
     # --- 1. Carregamento do DataFrame e definição de elementos essenciais ---
     full_df = pd.read_csv(labels_path)
     df = filterData(full_df)
@@ -113,8 +112,10 @@ def prepareData(
     # --- 3. Definição das transformações
     train_transform = transforms.Compose([
         transforms.Resize((64, 64)),
-        transforms.RandomHorizontalFlip(p=0.5), # Espelha a imagem aleatoriamente
-        transforms.RandomRotation(15),          # Rotaciona a imagem aleatoriamente
+        transforms.RandomHorizontalFlip(),
+        #transforms.RandomHorizontalFlip(p=0.5), # Espelha a imagem aleatoriamente
+        #transforms.RandomRotation(15),
+        #transforms.RandomAffine(degrees=15, translate=(0.1, 0.1), scale=(0.9, 1.1), fill=255), # Rotaciona a imagem aleatoriamente
         transforms.ToTensor(),
     ])
 
@@ -169,6 +170,7 @@ def filterData(
     # --- 2. Define um limite mínimo (Ex: 20 imagens) ----
     MIN_SAMPLES = 20
     valid_types = counts[counts >= MIN_SAMPLES].index
+    #print(valid_types)
 
     # --- 3. Filtra o DataFrame mantendo apenas os tipos válidos ---
     return full_df[full_df['Type1'].isin(valid_types)].copy()

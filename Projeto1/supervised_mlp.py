@@ -11,9 +11,10 @@ from view_loss import plotLosses
 class MLP(nn.Module):
     def __init__(self, in_features=8, hidden_size=8, out_features=1):
         """
-        in_features: Número de features que o dataset possui
-        hidden_size: Número de neurônios na camada oculta
-        out_features: Classificação binária
+        Args:
+            in_features: Número de features que o dataset possui
+            hidden_size: Número de neurônios na camada oculta
+            out_features: Classificação binária
         """
         super(MLP, self).__init__() # instancia o nn.Module
         # Camada de entrada -> camada oculta
