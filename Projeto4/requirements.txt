@@ -5,6 +5,5 @@ torchvision
 matplotlib
 notebook
 numpy
-nvidia-pyindex
 nvidia-cudnn-cu12
 tqdm
