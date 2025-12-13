@@ -109,7 +109,7 @@ def prepareData(
         random_state=42
     )
 
-    # --- 3. Definição das transformações
+    # --- 3. Definição das transformações ---
     train_transform = transforms.Compose([
         transforms.Resize((64, 64)),
         transforms.RandomHorizontalFlip(),
