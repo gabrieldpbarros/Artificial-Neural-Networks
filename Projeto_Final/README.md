@@ -13,17 +13,20 @@ A implementação de algoritmos para o apoio à decisão clínica, como diagnós
 ```bash
 📂 Projeto_Final/
 ├──assets/
-│   └──
+│   ├──Complete_CNN_ConfusionMatrix.png
+│   ├──Complete_CNN_Losses.png
+│   ├──Simple_CNN_ConfusionMatrix.png
+│   └──Simple_CNN_Losses.png
 ├──models/
 │   ├──res_net.py
 │   └──simple_cnn.py
 ├──notebooks/
-│   └──
+│   └──tests_notebook.ipynb
 ├──utils/
 │   ├──load_data.py
-│   └──show_data.py
-├──.gitignore
-├──main.py
+│   ├──show_data.py
+│   └──view_loss.py
 ├──README.md
+├──main.py
 └──requirements.txt
 ```

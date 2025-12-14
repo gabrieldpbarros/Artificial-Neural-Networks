@@ -15,6 +15,9 @@ Projeto5/__pycache__
 Projeto5/best_cnn_model.pth
 Projeto_Final/db/
 Projeto_Final/__pycache__
+Projeto_Final/models/__pycache__
+Projeto_Final/models/best_complete_cnn_model.pth
+Projeto_Final/models/best_simple_cnn_model.pth
 Projeto_Final/utils/__pycache__
 .vscode/
 

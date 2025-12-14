@@ -5,7 +5,7 @@ from PIL import Image
 from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
-from typing import Dict, Tuple
+from typing import Tuple
 
 class CustomImgDataset(Dataset):
     def __init__(
@@ -196,19 +196,20 @@ def getDataLoaders(
         train_ds,
         batch_size=batch_size,
         shuffle=True,
-        num_workers=0 # colocar em 2 no Colab, caso identifique algum erro
+        num_workers=4, # colocar em 2 no Colab, caso identifique algum erro
+        pin_memory=True
     )
     val_loader = DataLoader(
         val_ds,
         batch_size=batch_size,
         shuffle=False,
-        num_workers=0
+        num_workers=4
     )
     test_loader = DataLoader(
         test_ds,
         batch_size=batch_size,
         shuffle=False,
-        num_workers=0
+        num_workers=4
     )
 
     return train_loader, val_loader, test_loader
