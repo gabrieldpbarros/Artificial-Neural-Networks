@@ -17,12 +17,12 @@ def mainPipeline(device, db_path):
     train_loader, val_loader, test_loader = getDataLoaders(db_path)
 
     simpleModel = cnnModel(
-        device=DEVICE,
+        device=device,
         filters_list=[32, 64]
     )
 
     completeModel = cnnModel(
-        device=DEVICE,
+        device=device,
         filters_list=[32, 64, 128],
         dropout=True,
         batch_norm=True,

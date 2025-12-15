@@ -63,9 +63,6 @@ class SimpleCNN_Base(nn.Module):
         self.classifier = nn.Linear(input_features, num_classes)
 
     def forward(self, x):
-        """
-        Método de 
-        """
         # --- 1. Camadas convolucionais ---
         x = self.conv_layers(x)
 
@@ -127,7 +124,6 @@ class cnnModel():
         self.val_loss = []
         self.test_class = []
         self.predicted_class = []
-        self.accuracy = 0
 
     def trainModel(
             self,
@@ -179,8 +175,6 @@ class cnnModel():
         Args:
             val_loader: DataLoader de validação.
             loss_function: Função de erro definida pelo usuário.
-        Output:
-            avg_loss: Média do erro calculado nas iterações da época.
         """
         self.model.eval()
         total_loss = 0.0
@@ -205,12 +199,8 @@ class cnnModel():
 
         Args:
             model: Modelo de rede neural a ser treinado.
-            test_loader: DataLoader de testew.
+            test_loader: DataLoader de teste.
             device: Dispositivo de aceleração utilizado.
-        Output:
-            accuracy: Acurácia média do modelo.
-            real_lst: Lista contendo os labels de cada amostra.
-            predicted_lst: Lista contendo o label predito pelo modelo por amostra.
         """
         self.model.eval()
         correct_cases = 0
